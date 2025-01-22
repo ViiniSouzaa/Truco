@@ -54,9 +54,17 @@ public class TrucoApplication {
 			Vencedor vencedor =  rodada.iniciaRodada();
 			
 			if(vencedor.getVencedor().equals(jogador)) {
+				System.out.println("Voce venceu a rodada!");
 				pontuacaoJogador += vencedor.getPontos();
+				if(pontuacaoJogador >= 12) {
+					pontuacaoJogador = 12;
+				}
 			} else if(vencedor.getVencedor().equals(maquina)) {
+				System.out.println("Maquina venceu a rodada!");
 				pontuacaoMaquina += vencedor.getPontos();
+				if(pontuacaoMaquina >= 12) {
+					pontuacaoMaquina = 12;
+				}
 			}
 			
 			System.out.println("PONTUACAO : ");
