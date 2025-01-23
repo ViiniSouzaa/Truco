@@ -10,8 +10,6 @@ import com.example.ia.JogadaMaquina;
 
 public class Rodada {
 	
-	private Baralho baralho;
-	
 	private Carta coringa;
 	
 	private Jogador jogador;
@@ -20,9 +18,8 @@ public class Rodada {
 	
 	private Integer valorRodada;
 
-	public Rodada(Baralho baralho, Jogador jogador, Jogador maquina) {
+	public Rodada(Jogador jogador, Jogador maquina) {
 		super();
-		this.baralho = baralho;
 		this.jogador = jogador;
 		this.maquina = maquina;
 		this.valorRodada = 1;
@@ -35,6 +32,7 @@ public class Rodada {
 		Integer turnoVencidoMaquina = 0;
 		List<Carta> cartasJogador = new ArrayList<Carta>();
 		List<Carta> cartasMaquina = new ArrayList<Carta>();
+		Jogador ultimoQueTrucou = null;
 		
 		distribuirCartas(cartasJogador,cartasMaquina);
 		
@@ -51,17 +49,17 @@ public class Rodada {
 			turno++;
 			
 			if(empaxou) {
-				if(turnoVencidoJogador == 1) {
-					turnoVencidoJogador = 2;
-				}else if(turnoVencidoMaquina == 1){
-					turnoVencidoMaquina = 2;
-				} else if(turnoVencidoJogador == 1 && turnoVencidoMaquina == 1) {
+				if(turnoVencidoJogador == 1 && turnoVencidoMaquina == 1) {
 					if(vencedorTurno1 == jogador) {
 						turnoVencidoJogador = 2;
 					} else {
 						turnoVencidoMaquina = 2;
 					}
-				}
+				}else if(turnoVencidoJogador == 1) {
+					turnoVencidoJogador = 2;
+				}else if(turnoVencidoMaquina == 1){
+					turnoVencidoMaquina = 2;
+				}  
 			}else {
 				System.out.println("Suas cartas: ");
 				int i = 1;
@@ -73,8 +71,20 @@ public class Rodada {
 				Integer escolha = 0;
 
 				do {
-					if(escolha != 0 && validaEscolha(escolha, turno) == -1) {
+					if(escolha != 0 && escolha == -1) {
 						System.out.println("Escolha Invalida!");
+					}
+					if(escolha == -2) {
+						ultimoQueTrucou = jogador;
+						if(jogadaMaquina.aceitaTruco(cartasMaquina, 
+								valorRodada, turno, turnoVencidoJogador, 
+								turnoVencidoMaquina, vencedorTurno1)) {
+							System.out.println("DESCE VAGABUNDO!");
+							defineValorRodada();
+						} else {
+							System.err.println("Maquina correu!");
+							turnoVencidoJogador = 2;
+						} 
 					}
 					
 					System.out.println("Selecione qual ação quer realizar: ");
@@ -83,14 +93,14 @@ public class Rodada {
 						System.out.println(j + ": Jogar carta " + j);
 						j++;
 					}
-					if(this.valorRodada < 3) {
+					if(this.valorRodada < 3 && (ultimoQueTrucou == null || ultimoQueTrucou != jogador)) {
 						System.out.println(4 + ": Trucar");
 					}
-					if(this.valorRodada >= 3) {
+					if(this.valorRodada <= 12 && ultimoQueTrucou != null && ultimoQueTrucou != jogador) {
 						System.out.println(5 + ": Aumentar");
 					}
 					
-					escolha = scanner.nextInt();
+					escolha = validaEscolha(scanner.nextInt(), turno);
 				}while(escolha == -1 || escolha == -2);
 				
 				Carta cartaJogador = null;
@@ -119,15 +129,16 @@ public class Rodada {
 				}
 				
 				//Jogada da maquina
-				int indexCartaMaquina = jogadaMaquina.escolheJogada(cartasMaquina, cartaJogador, empaxou);
+				int indexCartaMaquina = jogadaMaquina.escolheJogada(cartasMaquina, cartaJogador, empaxou, (ultimoQueTrucou == jogador));
 				if(indexCartaMaquina != 4) {
 					cartaMaquina = cartasMaquina.get(indexCartaMaquina);
 					cartasMaquina.remove(indexCartaMaquina);
 					System.out.println("Seu adversario jogou : " + cartaMaquina.getValor() + " " + cartaMaquina.getNaipe());
 				} else { 
+					ultimoQueTrucou = maquina;
 					boolean respostaTrucoJogador = respostaTrucoJogador();
 					if(respostaTrucoJogador) {
-						this.valorRodada = 3;
+						defineValorRodada();
 						indexCartaMaquina = jogadaMaquina.escolheCartaRetorno(cartasMaquina, cartaJogador, empaxou);
 						cartaMaquina = cartasMaquina.get(indexCartaMaquina);
 						cartasMaquina.remove(indexCartaMaquina);
@@ -164,10 +175,8 @@ public class Rodada {
 							vencedorTurno1 = maquina;
 						}
 						turnoVencidoMaquina++;
-					} else {
-						if(turnoVencidoMaquina == 0 && turnoVencidoJogador == 0) {
-							System.out.println("Empaxou, mostre sua carta mais forte!");
-						}
+					} else {		
+						System.out.println("Empaxou, mostre sua carta mais forte!");
 						empaxou = true;
 					}
 				}
@@ -186,12 +195,32 @@ public class Rodada {
 		
 	}
 	
+	private void defineValorRodada() {
+		if(this.valorRodada == 1) {
+			this.valorRodada = 3;
+		} else if(this.valorRodada == 3) {
+			this.valorRodada = 6;
+		} else if(this.valorRodada == 6) {
+			this.valorRodada = 9;
+		} else if(this.valorRodada == 9) {
+			this.valorRodada = 12;
+		}
+	}
+
 	private boolean respostaTrucoJogador() {
 		Scanner scanner = new Scanner(System.in);
 		
 		int escolha = 0;
+		if(valorRodada == 1) {
+			System.out.println("Seu adversario trucou!");
+		} else if(valorRodada == 3) {
+			System.out.println("Seu adversario aumentou para 6!");
+		} else if(valorRodada == 6) {
+			System.out.println("Seu adversario aumentou para 9!");
+		} else if(valorRodada == 9) {
+			System.out.println("Seu adversario aumentou para 12!");
+		}
 		
-		System.out.println("Seu adversario trucou!");
 		while(escolha != 1 && escolha != 2) {
 			System.out.println("Para aceitar digite 1, correr digite 2!");
 			escolha = scanner.nextInt();
@@ -208,6 +237,8 @@ public class Rodada {
 
 	private void distribuirCartas(List<Carta> cartasJogador, List<Carta> cartasMaquina) {
 		Random random = new Random();
+		
+		Baralho baralho = new Baralho();
 		List<Carta> cartasEmJogo = new ArrayList<Carta>();
 		
 		for(int i = 0; i < 7; i++) {
@@ -276,30 +307,29 @@ public class Rodada {
 		}
 		
 		if(escolha == 4) {
-			if(this.valorRodada <= 3) {
+			if(this.valorRodada >= 3) {
 				return -1;
 			}
 			else {
 				System.out.println("TRUCO LADRAO!");
 				System.out.println("DESCE VAGABUNDO!");
 				this.valorRodada = 3;
+				return -2;
 			}
-			return -2;
 		}
 		
 		if(escolha == 5) {
-			if(this.valorRodada == 3) {
+			if(this.valorRodada < 3) {
+				return -1;
+			}else if(this.valorRodada == 3) {
 				System.out.println("SEEEEEEIS");
-				System.out.println("DESCE VAGABUNDO!");
-				this.valorRodada = 6;
+				return -2;
 			} else if(this.valorRodada == 6) {
 				System.out.println("NOVEEEEE");
-				System.out.println("DESCE VAGABUNDO!");
-				this.valorRodada = 9;
+				return -2;
 			} else if(this.valorRodada == 9) {
 				System.out.println("DOZEEE");
-				System.out.println("DESCE VAGABUNDO!");
-				this.valorRodada = 12;
+				return -2;
 			}
 			
 		}

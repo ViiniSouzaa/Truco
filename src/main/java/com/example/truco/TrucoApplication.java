@@ -40,8 +40,6 @@ public class TrucoApplication {
 	public static Boolean iniciaJogo(Jogador jogador) {
 		Scanner scanner = new Scanner(System.in);
 		
-		Baralho baralho = new Baralho();
-		
 		Jogador maquina = new Jogador("Maquina");
 		
 		Integer pontuacaoJogador = 0; 
@@ -49,7 +47,7 @@ public class TrucoApplication {
 		Integer pontuacaoMaquina = 0; 
 		
 		while(pontuacaoJogador < 12 && pontuacaoMaquina < 12) {
-			Rodada rodada = new Rodada(baralho, jogador, maquina);
+			Rodada rodada = new Rodada(jogador, maquina);
 			
 			Vencedor vencedor =  rodada.iniciaRodada();
 			

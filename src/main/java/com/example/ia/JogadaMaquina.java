@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.example.truco.model.Carta;
+import com.example.truco.model.Jogador;
 
 public class JogadaMaquina {
 	
@@ -14,15 +15,15 @@ public class JogadaMaquina {
 		super();
 	}
 
-	public int escolheJogada(List<Carta> cartasMaquina, Carta cartaAdversario, Boolean empaxou) {
+	public int escolheJogada(List<Carta> cartasMaquina, Carta cartaAdversario, Boolean empaxou, Boolean podeTrucar) {
 		Random random = new Random();
 		int cartaRetorno = 0;
 		
-		if(calculaForcaMao(cartasMaquina) > 117) {
+		if(calculaForcaMao(cartasMaquina) > 117 && podeTrucar) {
 			return 4;
 		}
 		
-		if(random.nextInt(100) < 4) {
+		if(random.nextInt(100) < 19 && calculaForcaMao(cartasMaquina) < 14 ) {
 			return 4;
 		}
 		
@@ -63,5 +64,11 @@ public class JogadaMaquina {
 			forcaMao += carta.getForca();
 		}
 		return forcaMao;
+	}
+
+	public Boolean aceitaTruco(List<Carta> cartasMaquina, Integer valorRodada, int turno, Integer turnoVencidoJogador,
+			Integer turnoVencidoMaquina, Jogador vencedorTurno1) {
+		
+		return true;
 	}
 }
