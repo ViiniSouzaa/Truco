@@ -19,7 +19,7 @@ public class JogadaMaquina {
 		Random random = new Random();
 		int cartaRetorno = 0;
 		
-		if(calculaForcaMao(cartasMaquina) > 117 && podeTrucar) {
+		if(calculaForcaMao(cartasMaquina) > 28 && podeTrucar) {
 			return 4;
 		}
 		
@@ -68,7 +68,50 @@ public class JogadaMaquina {
 
 	public Boolean aceitaTruco(List<Carta> cartasMaquina, Integer valorRodada, int turno, Integer turnoVencidoJogador,
 			Integer turnoVencidoMaquina, Jogador vencedorTurno1) {
+		Random random = new Random();
 		
-		return true;
+		if(turnoVencidoMaquina == 1 && turnoVencidoJogador == 1) {
+			
+			if(calculaForcaMao(cartasMaquina) >= 9) {
+				return true;
+			} else if(random.nextInt(100) < 22 && 
+						calculaForcaMao(cartasMaquina) < 4 ) {
+				return true;
+			} else {
+				return false;
+			}
+			
+		} else if(turnoVencidoMaquina == 1) {
+			
+			if(calculaForcaMao(cartasMaquina) > 14) {
+				return true;
+			} else if(random.nextInt(100) < 35 && 
+					calculaForcaMao(cartasMaquina) < 9 ) {
+			return true;
+			} else {
+				return false;
+			}
+			
+		} else if(turnoVencidoJogador == 1) {
+			
+			if(calculaForcaMao(cartasMaquina) > 17) {
+				return true;
+			} else if(random.nextInt(100) < 31 && 
+					calculaForcaMao(cartasMaquina) < 11 ) {
+			return true;
+			} else {
+				return false;
+			}
+			
+		} else {
+			if(calculaForcaMao(cartasMaquina) > 26) {
+				return true;
+			} else if(random.nextInt(100) < 31 && 
+					calculaForcaMao(cartasMaquina) < 11 ) {
+			return true;
+			} else {
+				return false;
+			}
+		}
 	}
 }
